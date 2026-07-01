@@ -21,11 +21,11 @@ TEAMS = {HOME_TEAM: [
 ],
          
           AWAY_TEAM: [
-        {"player_id": "BRA09", "name": "K. Oliveira"},
-        {"player_id": "BRA10", "name": "R. Santos"},
-        {"player_id": "BRA07", "name": "G. Almeida"},
-        {"player_id": "BRA11", "name": "V. Costa"},
-        {"player_id": "BRA08", "name": "D. Pereira"},        
+    {"player_id": "BRA09", "name": "K. Oliveira"},
+    {"player_id": "BRA10", "name": "R. Santos"},
+    {"player_id": "BRA07", "name": "G. Almeida"},
+    {"player_id": "BRA11", "name": "V. Costa"},
+    {"player_id": "BRA08", "name": "D. Pereira"},        
     
           ] }
 
