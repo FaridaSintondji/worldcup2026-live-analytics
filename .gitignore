@@ -1,0 +1,39 @@
+# --- Environnements virtuels ---
+venv/
+.venv/
+env/
+ENV/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Variables d'environnement / secrets ---
+.env
+*.pem
+*.key
+
+# --- VS Code ---
+.vscode/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- Databricks ---
+.databricks/
+databricks.cfg
+
+# --- Docker ---
+*.log
+volumes/
+
+# --- Systeme ---
+.DS_Store
+Thumbs.db
