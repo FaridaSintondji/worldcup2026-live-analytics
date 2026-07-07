@@ -2,13 +2,12 @@
 import json
 import random
 import time
-from datetine import datetime, timezone
+from datetime import datetime, timezone
 from kafka import KafkaProducer 
 
 from producers.config import (
     KAFKA_BOOTSTRAP_SERVERS,
     TOPIC_MATCH_EVENTS,
-    TOPIC_FAN_TWEETS,
     MATCH_ID,
     HOME_TEAM,
     AWAY_TEAM,
@@ -16,7 +15,8 @@ from producers.config import (
     EVENT_TYPES,
     EVENT_INTERVAL_RANGE,
     MATCH_DURATION_MINUTES,
-    EVENT_WEIGHTS
+    EVENT_WEIGHTS,
+    SIMULATION_DURATION_SECONDS,
 )
 
 def generate_match_event(minute):
@@ -40,11 +40,17 @@ def run_match_producer():
     """Construit un KafkaProducer et envoie un événement toutes les quelques secondes jusqu'à la fin du match simulé """
     producer = KafkaProducer(
         bootstrap_servers = KAFKA_BOOTSTRAP_SERVERS,
-        value_serializer = lambda v: json.dumps(v).encode("utf-8")
-        key_serializer = lambda k: k.encode("utf-8")
+        value_serializer = lambda v: json.dumps(v).encode("utf-8"),
+        key_serializer = lambda k: k.encode("utf-8"),
     )
+    
+    start = time.monotonic()
 
-    for minute in range (MATCH_DURATION_MINUTES + 1):
+    while time.monotonic() - start < SIMULATION_DURATION_SECONDS:
+        elapsed = time.monotonic() - start
+        proportion = elapsed / SIMULATION_DURATION_SECONDS
+        minute = int(proportion * MATCH_DURATION_MINUTES)
+    
         event = generate_match_event(minute)
         producer.send(TOPIC_MATCH_EVENTS, key = event["match_id"], value=event)
         print(f"[{event['minute']}] {event['event_type']} - {event['team']} - {event['player_name']}")
