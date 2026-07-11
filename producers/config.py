@@ -2,8 +2,26 @@
 Configuration partagée pour les producteurs Kafka du projet
 World Cup 2026 Live Analytics & Fan Engagement Platform.
 """
+import os
+from dotenv import load_dotenv
 
-KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
+
+load_dotenv()
+
+KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+CONFLUENT_API_KEY = os.getenv("CONFLUENT_API_KEY")
+CONFLUENT_API_SECRET = os.getenv("CONFLUENT_API_SECRET")
+
+PRODUCER_CONFIG = {"bootstrap_servers": KAFKA_BOOTSTRAP_SERVERS}
+
+if CONFLUENT_API_KEY and CONFLUENT_API_SECRET:
+    PRODUCER_CONFIG.update({
+        "security_protocol": "SASL_SSL",
+        "sasl_mechanism": "PLAIN",
+        "sasl_plain_username": CONFLUENT_API_KEY,
+        "sasl_plain_password": CONFLUENT_API_SECRET,
+    })
+
 SIMULATION_DURATION_SECONDS = 60
 
 # Constantes du producer match event

@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from kafka import KafkaProducer 
 
 from producers.config import (
-    KAFKA_BOOTSTRAP_SERVERS,
+    PRODUCER_CONFIG,
     TOPIC_MATCH_EVENTS,
     MATCH_ID,
     HOME_TEAM,
@@ -39,25 +39,26 @@ def generate_match_event(minute):
 def run_match_producer():
     """Construit un KafkaProducer et envoie un événement toutes les quelques secondes jusqu'à la fin du match simulé """
     producer = KafkaProducer(
-        bootstrap_servers = KAFKA_BOOTSTRAP_SERVERS,
+        **PRODUCER_CONFIG,
         value_serializer = lambda v: json.dumps(v).encode("utf-8"),
         key_serializer = lambda k: k.encode("utf-8"),
     )
     
     start = time.monotonic()
 
-    while time.monotonic() - start < SIMULATION_DURATION_SECONDS:
-        elapsed = time.monotonic() - start
-        proportion = elapsed / SIMULATION_DURATION_SECONDS
-        minute = int(proportion * MATCH_DURATION_MINUTES)
-    
-        event = generate_match_event(minute)
-        producer.send(TOPIC_MATCH_EVENTS, key = event["match_id"], value=event)
-        print(f"[{event['minute']}] {event['event_type']} - {event['team']} - {event['player_name']}")
-        time.sleep(random.uniform(*EVENT_INTERVAL_RANGE))
+    try:
+        while time.monotonic() - start < SIMULATION_DURATION_SECONDS:
+            elapsed = time.monotonic() - start
+            proportion = elapsed / SIMULATION_DURATION_SECONDS
+            minute = int(proportion * MATCH_DURATION_MINUTES)
 
-    producer.flush()
-    producer.close()
+            event = generate_match_event(minute)
+            producer.send(TOPIC_MATCH_EVENTS, key=event["match_id"], value=event)
+            print(f"[{event['minute']}] {event['event_type']} - {event['team']} - {event['player_name']}")
+            time.sleep(random.uniform(*EVENT_INTERVAL_RANGE))
+    finally:
+        producer.flush()
+        producer.close()
 
 if __name__ == "__main__":
     run_match_producer()

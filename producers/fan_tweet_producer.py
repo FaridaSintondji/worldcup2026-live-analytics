@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from kafka import KafkaProducer
 
 from producers.config import (
-    KAFKA_BOOTSTRAP_SERVERS,
+    PRODUCER_CONFIG,
     TOPIC_FAN_TWEETS,
     PSEUDO,
     MESSAGE,
@@ -29,7 +29,7 @@ def generate_fan_tweet():
 def run_tweet_producer():
     """Construit un KafkaProducer et envoie un tweet toutes les quelques secondes"""
     producer = KafkaProducer(
-        bootstrap_servers = KAFKA_BOOTSTRAP_SERVERS,
+        **PRODUCER_CONFIG,
         value_serializer = lambda v: json.dumps(v).encode("utf-8"),
         key_serializer = lambda k: k.encode("utf-8"),
 
@@ -37,14 +37,15 @@ def run_tweet_producer():
 
     start = time.monotonic()
     
-    while time.monotonic() - start < SIMULATION_DURATION_SECONDS:
-        tweet = generate_fan_tweet()
-        producer.send(TOPIC_FAN_TWEETS, key = tweet["user_name"], value = tweet)
-        print(f"{tweet['user_name']} - {tweet['message']}")
-        time.sleep(random.uniform(*TWEET_INTERVAL_RANGE))
-
-    producer.flush()
-    producer.close()
+    try:
+        while time.monotonic() - start < SIMULATION_DURATION_SECONDS:
+            tweet = generate_fan_tweet()
+            producer.send(TOPIC_FAN_TWEETS, key=tweet["user_name"], value=tweet)
+            print(f"{tweet['user_name']} - {tweet['message']}")
+            time.sleep(random.uniform(*TWEET_INTERVAL_RANGE))
+    finally:
+        producer.flush()
+        producer.close()
 
 
 if __name__ == '__main__':
